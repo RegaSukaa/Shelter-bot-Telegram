@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бункер - Постапокалиптическая игра выживания</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e6e6e6;
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #ffd166);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd166);
+            color: #1a1a2e;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #4e89ae, #4361ee);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #ffd166;
+            color: #ffd166;
+        }
+        
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #e63946, #d90429);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #ffd166;
+            text-align: center;
+        }
+        
+        .page-nav {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        
+        .page-number {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin: 10px 0;
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 40px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ffd166);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+        
+        .slider-value {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .character-card {
+            background: linear-gradient(135deg, #2d3047, #1b2021);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 209, 102, 0.3);
+        }
+        
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #ffd166);
+        }
+        
+        .character-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .character-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ffd166;
+        }
+        
+        .character-info {
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid #ffd166;
+        }
+        
+        .character-info:not(:last-child) {
+            margin-bottom: 12px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #4e89ae;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .tab.active {
+            background: linear-gradient(45deg, #ff6b6b, #ffd166);
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+        
+        .player-card {
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 209, 102, 0.2);
+        }
+        
+        .player-number {
+            background: linear-gradient(45deg, #ff6b6b, #ffd166);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .threat-card {
+            background: rgba(255, 107, 107, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 107, 107, 0.5);
+        }
+        
+        .threat-title {
+            color: #ff6b6b;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .bunker-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #ffd166;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .player-slider {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .player-dot {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .player-dot.active {
+            background: #ffd166;
+            color: #1a1a2e;
+            transform: scale(1.1);
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 0;
+            top: 20px;
+            background: none;
+            border: none;
+            color: #ffd166;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            border: 1px solid #ffd166;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ffd166;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffd166;
+        }
+        
+        .modal-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .modal-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid #ff6b6b;
+        }
+        
+        .modal-item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffd166;
+        }
+        
+        .number-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .number-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .number-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .number-option.selected {
+            background: #ffd166;
+            color: #1a1a2e;
+            border-color: #ff6b6b;
+            transform: scale(1.1);
+        }
+        
+        .finish-player-list {
+            max-height: 50vh;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        
+        .finish-player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        /* Мобильные стили */
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .player-dot {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            
+            .number-option {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Главный экран -->
+        <div id="mainScreen" class="screen active">
+            <div class="header">
+                <div class="logo">БУНКЕР</div>
+                <div class="subtitle">Выживи в постапокалиптическом мире</div>
+            </div>
+            
+            <div class="card">
+                <button id="createGameBtn" class="btn">Создать игру</button>
+                <button id="howToPlayBtn" class="btn btn-secondary">Как играть?</button>
+            </div>
+            
+            <div class="card">
+                <h3>Последние игры</h3>
+                <p>У вас пока нет завершенных игр</p>
+            </div>
+            
+            <div class="footer">
+                <button id="bugReportBtn" class="btn btn-outline">Нашёл баг?</button>
+            </div>
+        </div>
+        
+        <!-- Экран "Как играть" -->
+        <div id="howToPlayScreen" class="screen">
+            <div class="header">
+                <button class="back-btn">←</button>
+                <h2>Как играть?</h2>
+            </div>
+            
+            <div class="tab-container">
+                <div id="introTab" class="tab active">Введение</div>
+                <div id="gameplayTab" class="tab">Ход игры</div>
+            </div>
+            
+            <div id="introContent">
+                <div id="introPage1" class="card">
+                    <div class="page-number">Страница 1/3</div>
+                    <h3 class="card-title">Что случилось</h3>
+                    <p>Катастрофа планетарных масштабов превратила Землю в постапокалиптический мир. Выживание на поверхности не представляется возможным ни в каком виде.</p>
+                </div>
+                
+                <div id="introPage2" class="card hidden">
+                    <div class="page-number">Страница 2/3</div>
+                    <h3 class="card-title">Как выжить</h3>
+                    <p>Чтобы выжить, вам придётся переждать конец света в бункере. Вот только... не один вы ищете убежища. Около дверей бункера собрались самые разные люди, а мест и ресурсов в нём хватит лишь на половину.</p>
+                </div>
+                
+                <div id="introPage3" class="card hidden">
+                    <div class="page-number">Страница 3/3</div>
+                    <h3 class="card-title">Я попаду в бункер!</h3>
+                    <p>Сыграйте роль одного из немногих выживших, убедите других в своей полезности и Выживите в новой суровой реальности!</p>
+                </div>
+                
+                <div class="page-nav">
+                    <button id="introPrevBtn" class="btn btn-outline" disabled>Назад</button>
+                    <button id="introNextBtn" class="btn">Далее</button>
+                </div>
+            </div>
+            
+            <div id="gameplayContent" class="hidden">
+                <div id="gameplayPage1" class="card">
+                    <div class="page-number">Страница 1/8</div>
+                    <h3 class="card-title">До игры</h3>
+                    <p>После того как вы создали игру, вы можете скинуть карточку каждого персонажа ему в телеграмм, для более удобной игры.</p>
+                </div>
+                
+                <div id="gameplayPage2" class="card hidden">
+                    <div class="page-number">Страница 2/8</div>
+                    <h3 class="card-title">Экран катастрофы</h3>
+                    <p>На экране катастрофы вы можете ознакомиться с апокалипсисом, от которого вам придётся укрываться. А также узнать информацию о самом бункере (описание, количество мест, доступные ресурсы и время, которое вы проведёте в бункере)</p>
+                </div>
+                
+                <div id="gameplayPage3" class="card hidden">
+                    <div class="page-number">Страница 3/8</div>
+                    <h3 class="card-title">Ваш персонаж</h3>
+                    <p>На экране персонажа вы увидите характеристики, которые вам предстоит открывать по ходу игры, чтобы доказать, что вы будете полезны в бункере. А также две карточки - действия и условия, с помощью которых вы сможете изменить ход игры в свою пользу</p>
+                </div>
+                
+                <div id="gameplayPage4" class="card hidden">
+                    <div class="page-number">Страница 4/8</div>
+                    <h3 class="card-title">Карточки</h3>
+                    <p>Карточка действия может быть использована игроком в любой момент игры. Карточка условия должна быть использована игроком как только условие написанное на ней выполнится.</p>
+                </div>
+                
+                <div id="gameplayPage5" class="card hidden">
+                    <div class="page-number">Страница 5/8</div>
+                    <h3 class="card-title">Вскрытие характеристик</h3>
+                    <p>На каждом круге все игроки по очереди вскрывают одинаковое количество характеристик(Количество можете выбрать сами, хотите ли вы более спокойную игру или более быструю) Профессия обязательно раскрывается на первом круге</p>
+                </div>
+                
+                <div id="gameplayPage6" class="card hidden">
+                    <div class="page-number">Страница 6/8</div>
+                    <h3 class="card-title">Обсуждение</h3>
+                    <p>После каждого круга проходит обсуждение. Мы рекомендуем Давать каждому игроку личную минуту, от которой можно отказаться в случае, если игроку нечего сказать.</p>
+                </div>
+                
+                <div id="gameplayPage7" class="card hidden">
+                    <div class="page-number">Страница 7/8</div>
+                    <h3 class="card-title">Голосование</h3>
+                    <p>После обсуждения игроки голосуют за того/тех, кто точно не пройдёт в бункер.</p>
+                </div>
+                
+                <div id="gameplayPage8" class="card hidden">
+                    <div class="page-number">Страница 8/8</div>
+                    <h3 class="card-title">Окончание игры</h3>
+                    <p>Игра продолжается до тех пор, пока количество игроков не будет совпадать с количеством мест в бункере. После игры вы можете посмотреть концовку - событие которое проверит команду попавших в бункер на прочность.</p>
+                </div>
+                
+                <div class="page-nav">
+                    <button id="gameplayPrevBtn" class="btn btn-outline" disabled>Назад</button>
+                    <button id="gameplayNextBtn" class="btn">Далее</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран создания игры -->
+        <div id="createGameScreen" class="screen">
+            <div class="header">
+                <button class="back-btn">←</button>
+                <h2>Создать игру</h2>
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title">Количество игроков</h3>
+                <div class="slider-container">
+                    <input type="range" id="playerCountSlider" class="slider" min="4" max="22" value="12">
+                    <div id="playerCountValue" class="slider-value">12</div>
+                </div>
+                <p>Рекомендуем 10-14 игроков</p>
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title">Настройки игры</h3>
+                <button id="apocalypseListBtn" class="btn btn-secondary">Список апокалипсисов</button>
+                <button id="bunkerListBtn" class="btn btn-secondary">Список бункеров</button>
+            </div>
+            
+            <button id="createGameNextBtn" class="btn">Далее</button>
+        </div>
+        
+        <!-- Экран выбора персонажа -->
+        <div id="chooseCharacterScreen" class="screen">
+            <div class="header">
+                <button class="back-btn">←</button>
+                <h2>Выберите номер персонажа</h2>
+            </div>
+            
+            <div class="card">
+                <div class="number-selector" id="numberSelector">
+                    <!-- Номера будут добавлены динамически -->
+                </div>
+                
+                <div class="character-card">
+                    <div class="character-header">
+                        <div class="character-title">Игрок <span id="characterNumDisplay">1</span></div>
+                    </div>
+                </div>
+                
+                <label class="player-card">
+                    <div>Я буду наблюдателем</div>
+                    <div>
+                        <input type="checkbox" id="observerCheckbox">
+                    </div>
+                </label>
+            </div>
+            
+            <button id="chooseCharacterNextBtn" class="btn">Далее</button>
+        </div>
+        
+        <!-- Экран рассылки карточек -->
+        <div id="shareCardsScreen" class="screen">
+            <div class="header">
+                <button class="back-btn">←</button>
+                <h2>Рассылка карточек</h2>
+            </div>
+            
+            <div class="card">
+                <p>Отправьте каждому игроку его карточку персонажа через Telegram:</p>
+                
+                <div id="playersList">
+                    <!-- Список игроков будет сгенерирован динамически -->
+                </div>
+            </div>
+            
+            <button id="startGameBtn" class="btn">Начать игру</button>
+        </div>
+        
+        <!-- Экран игры -->
+        <div id="gameScreen" class="screen">
+            <div class="header">
+                <button class="back-btn">←</button>
+                <h2>Игра</h2>
+            </div>
+            
+            <!-- Экран катастрофы и бункера -->
+            <div id="apocalypseBunkerScreen" class="card">
+                <h3 class="card-title">АПОКАЛИПСИС</h3>
+                <p id="apocalypseDescription">После серии сейсмических активностей на мир обрушились цунами и землетрясения, разрушившие атомные электростанции по всему миру.</p>
+                
+                <h3 class="card-title" style="margin-top: 20px;">БУНКЕР</h3>
+                <div class="bunker-info">
+                    <div class="info-box">
+                        <div class="info-label">Название</div>
+                        <div id="bunkerName" class="info-value">Гора Бора</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Размер</div>
+                        <div id="bunkerSize" class="info-value">500 m²</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Места</div>
+                        <div id="bunkerSlots" class="info-value">11</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Время</div>
+                        <div id="bunkerTime" class="info-value">1 мес.</div>
+                    </div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Описание:</span> 
+                    <p id="bunkerDescription">Современный бункер, ранее использованный как склад для овощей. Использовался как локация фильма.</p>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Местоположение:</span> 
+                    <p id="bunkerLocation">Болото</p>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Ресурсы:</span> 
+                    <p id="bunkerResources">Запас воды на 2 месяца, консервы на 2 месяца, 1 ноутбук</p>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Слабости:</span> 
+                    <p id="bunkerWeaknesses">Расположен на склоне (риск обвала), неисправная вентиляция</p>
+                </div>
+                
+                <button id="hideApocalypseBtn" class="btn btn-outline" style="margin-top: 15px;">Скрыть</button>
+            </div>
+            
+            <!-- Карта персонажа -->
+            <div id="characterCardScreen" class="card">
+                <div class="character-header">
+                    <h3 class="character-title">Игрок <span id="playerNum">1</span>: <span id="playerProfession">Дегустатор</span></h3>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Био. Характеристики</span>
+                    <div>Возраст: <span id="playerAge">22 год</span></div>
+                    <div>Пол: <span id="playerGender">Женщина</span></div>
+                    <div>Ориентация: <span id="playerOrientation">гетеросексуальная</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Состояние Здоровья</span>
+                    <div><span id="playerHealth">Идеально здоров</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Характер</span>
+                    <div><span id="playerCharacter">Оптимистичный</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Хобби</span>
+                    <div><span id="playerHobby">Вязание</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Фобия</span>
+                    <div><span id="playerPhobia">Зоофобия – боязнь животных</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Доп. Инфа</span>
+                    <div><span id="playerExtra">Знает 5 языков</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Знание</span>
+                    <div><span id="playerKnowledge">Знает место с солнечными батареями</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Багаж</span>
+                    <div><span id="playerLuggage">Гитара</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Карта действия</span>
+                    <div><span id="playerActionCard">Вылечить любого игрока от болезни</span></div>
+                </div>
+                
+                <div class="character-info">
+                    <span class="info-label">Карта условия</span>
+                    <div><span id="playerConditionCard">Если вас выгонят, в бункере заведутся крысы</span></div>
+                </div>
+                
+                <div class="player-slider" id="playerSlider">
+                    <!-- Кнопки для игроков будут добавлены динамически -->
+                </div>
+                
+                <button id="showApocalypseBtn" class="btn btn-outline" style="margin-top: 15px;">Показать апокалипсис</button>
+                <button id="finishBtn" class="btn" style="margin-top: 10px;">Финиш</button>
+            </div>
+            
+            <!-- Экран угрозы -->
+            <div id="threatScreen" class="threat-card hidden">
+                <h3 class="threat-title">УГРОЗА</h3>
+                <p id="threatDescription">Отравление воды в бункере. Необходимо срочно найти источник заражения и устранить его, иначе все жители бункера рискуют погибнуть.</p>
+                <button id="closeThreatBtn" class="btn" style="margin-top: 15px;">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="apocalypseModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h3 class="modal-title">Список апокалипсисов</h3>
+            <div class="modal-list" id="apocalypseList">
+                <!-- Список будет добавлен динамически -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="bunkerModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h3 class="modal-title">Список бункеров</h3>
+            <div class="modal-list" id="bunkerList">
+                <!-- Список будет добавлен динамически -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="finishModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h3 class="modal-title">Финиш</h3>
+            
+            <div class="finish-player-list" id="finishPlayerList">
+                <!-- Список игроков будет добавлен динамически -->
+            </div>
+            
+            <button id="threatBtn" class="btn btn-danger">Узнать угрозу</button>
+            <button id="endGameBtn" class="btn" style="margin-top: 10px;">Завершить игру</button>
+        </div>
+    </div>
+
+    <script>
+        // Данные для игры
+        const professions = [
+            "Биолог", "Винодел", "Повар", "Хирург", "Программист", "Хакер", "Матрос", 
+            "Биохимик", "Таксист", "Кассир", "Художник", "Предприниматель", "Режиссёр", 
+            "Писатель", "Психолог", "Продавец оружия", "Депутат", "Полицейский", "Физик", 
+            "Педиатр", "Банкир", "Экономист", "Инженер-химик", "Инженер", "Агент ФБР", 
+            "Охранник", "Пилот", "Кинолог", "Грузчик", "Бухгалтер", "Военный", "Гробовщик", 
+            "Священник", "Акушер", "Военный лётчик", "Тамада", "Нейрохирург", "Садовод", 
+            "Слесарь", "Плотник", "Фермер", "Сексолог", "Гид", "Президент", "Сварщик", 
+            "Военный врач", "Дипломат", "Стриптизёр", "Учитель", "Спецназовец", "Вирусолог", 
+            "Браконьер", "Видеоинженер", "Гомеопат", "Робототехник", "Разнорабочий", 
+            "Тату-мастер", "Судья", "Философ", "Экстрасенс"
+        ];
+        
+        const genders = ["Мужчина", "Женщина"];
+        const orientations = ["Гетеросексуал(ка)", "Гомосексуал(ка)", "Бисексуал(ка)"];
+        const healthConditions = [
+            "Идеально здоров", "Отличное здоровье", "ВИЧ", "Авитаминоз", "Алкоголизм", 
+            "Аллергия на животных", "Анорексия", "Астма", "Бессонница", "Биполярное расстройство", 
+            "Болезнь Альцгеймера", "Гайморит", "Гастрит", "Гемофилия", "Гепатит B", "Глаукома", 
+            "Глухонемота", "Дальтонизм", "Депрессия", "Диарея", "Заикание", "Кариес", "Косоглазие", 
+            "Межпозвоночная грыба", "Мигрень", "Мочекаменная болезнь", "Наркомания", 
+            "Недержание мочи", "Ожирение", "Остеохондроз", "Отсутствие ноги", "Отсутствие руки", 
+            "Паранойя", "Плоскостопие", "Пневмония", "Простуда", "Псориаз", "Птичий грипп", 
+            "Рак крови", "Рак лёгкого", "Сахарный диабет (тип 1)", "Сахарный диабет (тип 2)", 
+            "Синдром Туретта", "Слепота", "Туберкулёз", "Умственная отсталость", "Цинга", 
+            "Шизофрения", "Эпилепсия", "Язва желудка", "Понос", "Повышенная волосатость", 
+            "Потеря обоняния", "Раздвоение личности", "Сексуальная озабоченность", "Склероз", 
+            "Суицидальные мысли", "Тремор рук", "Фригидность/Импотенция", "Хвост"
+        ];
+        
+        const characters = [
+            "Безвольный", "Лидер", "Беспринципный", "Аскетичный", "Конфликтный", 
+            "Храбрый", "Вспыльчивый", "Самовлюблённый", "Бесстрашный", "Грубый", 
+            "Доброжелательный", "Циничный", "Альтруистичный", "Подозрительный", 
+            "Оптимистичный", "Пессимистичный", "Расчётливый", "Импульсивный", 
+            "Тактичный", "Наивный", "Решительный", "Нерешительный", "Эгоистичный", 
+            "Великодушный", "Мстительный", "Терпеливый", "Нетерпеливый", "Упрямый", 
+            "Покладистый", "Замкнутый", "Общительный", "Агрессивный", "Миролюбивый", 
+            "Прагматичный", "Мечтательный", "Самоуверенный", "Скромный", "Доминирующий", 
+            "Покорный", "Ироничный", "Серьёзный", "Легкомысленный", "Ответственный", 
+            "Безответственный", "Жестокий", "Сострадательный", "Интроверт", "Экстраверт", 
+            "Апатичный", "Энергичный"
+        ];
+        
+        const extraInfos = [
+            "Был(а) вожатым в лагере", "Ведёт личный дневник", "Верит в пришельцев", 
+            "Верит в сверхъестественное", "Владеет спортивной подготовкой", "Выиграл(а) в лотерее", 
+            "Занял(а) 1-е место на марафоне", "Знает все стихи Пушкина наизусть", "Знает 5 языков", 
+            "Играл(а) в театре", "Имеет два высших образования", "Экстрасенсорные способности", 
+            "Любит мягкие игрушки", "Умеет оказывать первую помощь", "Ненавидит кофе", 
+            "Ненавидит современную музыку", "Не переносит алкоголь", "Феноменальная память", 
+            "Ограбил(а) банк", "Пережил(а) три покушения", "Побывал(а) в 18 странах", 
+            "Побывал(а) на Эвересте", "По образованию - терапевт", 
+            "Мировой рекорд по поеданию бургеров", "Продал(а) почку", "Проектировал(а) этот бункер", 
+            "Проходил(а) курсы самообороны", "Сидел(а) в тюрьме", "Спасал(а) утопающего", 
+            "Страдает морской болезнью", "Уверен(а), что живёт в матрице", 
+            "Уверен(а), что катастрофа - заговор рептилий", "Увлекается животноводством", 
+            "Умеет вскрывать замки", "Умеет жонглировать", "Ориентируется по звёздам", 
+            "Знает высшую математику", "Мастер игры в карты", "Ладит с животными", 
+            "Ориентируется на местности", "Читал(а) книгу о выживании", "Вегетарианец", 
+            "Копрофил", "Мастер спорта по боксу", "Резидент Comedy Club", "Вырос в семье лесника", 
+            "Гинофобия (боится женщин)", "Держал дома 40 кошек", "Видел инопланетян", 
+            "Взламывал базы ЦРУ", "Знает морзе", "Лично знаком с президентом", "Зануда", 
+            "Прошёл курсы психолога", "Понимает язык животных"
+        ];
+        
+        const knowledgeCards = [
+            "Знает координаты склада с медикаментами",
+            "Знает пароль к правительственной базе данных",
+            "Знает расположение подземного источника воды",
+            "Знает схему системы вентиляции бункера",
+            "Знает место с запасом семян пшеницы",
+            "Знает частоту экстренного радиоканала",
+            "Знает слабое место охранной системы",
+            "Знает рецепт изготовления взрывчатки",
+            "Знает координаты заброшенной военной базы",
+            "Знает путь к пещере с чистой водой"
+        ];
+        
+        const luggageItems = [
+            "Аптечка", "Беспроводная колонка", "Бладхаунд (собака)", "Бутылка шампанского", 
+            "Гаечный ключ", "Газовая горелка", "Гитара", "Грудной ребёнок", "Губная гармошка", 
+            "Дедовское ружьё", "10 медицинских масок", "Дневник выжившего", "Дублёнка", 
+            "Зажигалка", "Карманные часы", "Карта местности", "Кассеты с фильмами", 
+            "Книга по социологии", "Компас", "Консервы (месячный запас)", "Коробка с патронами", 
+            "Коробок спичек", "Косметическое зеркало", "Ледоруб и трос", "Лейка", "Лук и стрелы", 
+            "Молоток и гвозди", "Музыкальная шкатулка", "Набор для шитья", "Набор инструментов", 
+            "Набор кухонных ножей", "Настольные игры", "Немецкая овчарка", "Чистые листы пергамента", 
+            "Ноутбук", "Открывалка", "Пачка сигарет", "Персидский кот", "Пневматический пистолет", 
+            "Презервативы", "Противогаз", "Радио", "Туалетная бумага (10 рулонов)", 
+            "Семена капусты", "Семена картофеля", "Семена моркови", "Семена пшеницы", 
+            "Сотовый телефон", "Стерильные шприцы", "Журналы для взрослых", "Телевизор", 
+            "Топор и верёвка", "Респираторные маски", "Фонарик с батарейками", "Фотоаппарат", 
+            "4 рации", "Кукла вуду", "Мешок зерна", "Прибор ночного видения", "Портативная электростанция"
+        ];
+        
+        const hobbies = [
+            "Ведение блога", "Волонтёрство", "Выращивание растений", "Вышивание", 
+            "Боевые искусства", "Йога", "Фитнес", "Страйкбол", "Футбол", "Игра на гитаре", 
+            "Игра на пианино", "Изучение языков", "Коллекционирование монет", "Кулинария", 
+            "Лепка из глины", "Метание ножей", "Охота", "Пение", "Пивоварение", "Дайвинг", 
+            "Посещение концертов", "Походы", "Просмотр аниме", "Компьютерные игры", 
+            "Пчеловодство", "Работа с металлом", "Радиолюбительство", "Резьба по дереву", 
+            "Головоломки", "Рисование", "Рыбалка", "Сбор грибов", "Скалолазание", "Битбокс", 
+            "Оригами", "Фокусы", "Сочинение рэпа", "Стрельба из лука", "Выживание (сурвивализм)", 
+            "Сёрфинг", "Танцы", "Туризм", "Фехтование", "Чтение", "Шопинг", "Нетворкинг", 
+            "Медитация", "Паркур", "Любительская радиосвязь", "Массаж и акупунктура"
+        ];
+        
+        const phobias = [
+            "Арахнофобия (пауки)", "Клаустрофобия (замкнутые пространства)", "Акрофобия (высота)", 
+            "Агорафобия (открытые пространства)", "Астрафобия (гроза)", "Гемофобия (кровь)", 
+            "Никтофобия (темнота)", "Танатофобия (смерть)", "Дентофобия (стоматологи)", 
+            "Авиафобия (полёты)", "Мизофобия (микробы)", "Трипанофобия (уколы)", 
+            "Офидиофобия (змеи)", "Кинофобия (собаки)", "Социофобия (общение)", 
+            "Киберфобия (техника)", "Неофобия (новое)", "Пирофобия (огонь)", 
+            "Акустикофобия (громкие звуки)", "Гинофобия (женщины)", "Андрофобия (мужчины)", 
+            "Гидрофобия (вода)", "Аблутофобия (мытьё)", "Аутофобия (одиночество)", 
+            "Ксенофобия (незнакомцы)", "Зоофобия (животные)", "Трискаидекафобия (число 13)", 
+            "Аэрофобия (воздух)", "Батофобия (глубина)", "Космикофобия (космос)", 
+            "Виргинитифобия (изнасилование)", "Гефирофобия (мосты)", "Дорафобия (мех)", 
+            "Экофобия (дом)", "Фотофобия (свет)", "Термофобия (жара)", "Криофобия (холод)", 
+            "Дистихифобия (несчастные случаи)", "Энтомофобия (насекомые)", "Ранидафобия (лягушки)", 
+            "Копрофобия (фекалии)", "Аматофобия (пыль)", "Хемофобия (химия)", "Некрофобия (трупы)", 
+            "Гаптофобия (прикосновения)", "Атаксофобия (беспорядок)", "Анаблефобия (взгляд вверх)", 
+            "Эритрофобия (покраснение)", "Тестофобия (экзамены)", "Погонофобия (бороды)"
+        ];
+        
+        const actionCards = [
+            "+1 слот в бункере", "-1 слот в бункере", "Защита от выбывания на 1 ход", 
+            "Украсть здоровье у другого игрока", "Вылечить любого игрока от болезни", 
+            "Поменяться профессией с игроком", "Раскрыть фобию выбранного игрока", 
+            "Аннулировать все голоса против себя", "Принудить игрока пропустить голосование", 
+            "Удвоить запас еды в бункере"
+        ];
+        
+        const conditionCards = [
+            "Если вас выгонят, в бункере заведутся крысы", "Если вас возьмут, +1 слот", 
+            "При ничьей в голосовании ваш голос решает", 
+            "Если вас выгонят, срок в бункере увеличится на 1 год", 
+            "Вы не можете быть изгнанным в первые 2 раунда", 
+            "Все должны переголосовать, если вы в опасности", 
+            "Ваша фобия усиливается в кризисных ситуациях", 
+            "При вашем выбывании открывается новая угроза", 
+            "Вы невосприимчивы к одной случайной болезни", 
+            "Если вас не возьмут, -1 слот"
+        ];
+        
+        const apocalypses = [
+            {
+                name: "Летальный вирус \"Кронос\"",
+                description: "Штамм KR-77, созданный как биологическое оружие, вырвался из лаборатории. За месяц он охватил 90% стран. Жертвы кашляют кровью, покрываются чёрными язвами и умирают за 72 часа."
+            },
+            {
+                name: "Ядерный апокалипсис \"Сумерки\"",
+                description: "После теракта в ООН ядерные державы обменялись ударами. 500+ боеголовок стёрли с лица Земли мегаполисы. Небо стало серым от пепла, кислотные дожди выжигают последние растения."
+            },
+            {
+                name: "Заражение океана \"Глубинный ужас\"",
+                description: "Токсины фармкорпорации \"Нексус\" вызвали цветение красных водорослей-хищников. Они выделяют нейротоксин, превращающий морских обитателей в агрессивных мутантов."
+            },
+            {
+                name: "Зомби-апокалипсис \"Реквием\"",
+                description: "Вирус \"Некрофаг\" передаётся через укус и воздух. Заражённые теряют разум, но сохраняют ловкость: они бегут, карабкаются по стенам и чуют кровь за километр."
+            },
+            {
+                name: "Климатический коллапс \"Великий Перелом\"",
+                description: "Гольфстрим остановился. Теперь в Сибири +40°C, а в Сахаре идёт снег. Ураганы категории 6 сносят небоскрёбы, торнадо разносят фермы."
+            }
+        ];
+        
+        const bunkers = [
+            {
+                name: "Арктика-7",
+                description: "Ледяной кокон в вечной мерзлоте. Стены покрыты инеем, в коридорах гуляет холодный ветер.",
+                location: "Шпицберген",
+                resources: "Консервы (5 лет), геотермальный генератор, 10 противогазов",
+                weaknesses: "Обледенение дверей, коррозия труб"
+            },
+            {
+                name: "Лотос",
+                description: "Монастырская чистота: белые стены, запах ладана. В молитвенной комнате висит колокол, зовущий на медитацию.",
+                location: "Тибетские горы",
+                resources: "Родниковая вода, библиотека духовных текстов, набор трав",
+                weaknesses: "Нет оружия, тонкие стены"
+            },
+            {
+                name: "Квант",
+                description: "Хай-тек убежище с голограммами. Синие экраны показывают данные датчиков. В серверной мигают огоньки суперкомпьютера.",
+                location: "Под ЦЕРН, Швейцария",
+                resources: "ИИ \"Афина\", лаборатория ДНК, 3D-принтер",
+                weaknesses: "Уязвимость к EMP, требует много энергии"
+            },
+            {
+                name: "Атлантида",
+                description: "Подводный купол с видом на руины города. Через иллюминаторы плывут светящиеся медузы. Воздух солёный и влажный.",
+                location: "Дно Атлантики",
+                resources: "Опреснитель, гидропонные фермы, батискаф",
+                weaknesses: "Риск протечек, ограниченный кислород"
+            },
+            {
+                name: "Нора",
+                description: "Тесные туннели с низкими сводами. Земляной пол, запах грибов. В углу ржавая койка и бочка с дождевой водой.",
+                location: "Лесная чаща",
+                resources: "Консервы (3 года), лопата, фонарик",
+                weaknesses: "Крысиные гнёзда, сырость"
+            }
+        ];
+        
+        const threats = [
+            "Отравление воды в бункере",
+            "Пси-атака (галлюцинации и паника)",
+            "Нашествие крыс",
+            "Поломка генератора кислорода",
+            "Вирус стресса (смертелен при панике)",
+            "Бунт среди выживших",
+            "Радиационная утечка",
+            "Вторжение мутировавших насекомых",
+            "Дефицит еды (сокращение пайков)",
+            "Сбой системы безопасности"
+        ];
+        
+        // Состояние игры
+        let gameState = {
+            playerCount: 12,
+            selectedCharacter: 1,
+            isObserver: false,
+            players: [],
+            currentApocalypse: null,
+            currentBunker: null,
+            currentPlayerIndex: 0,
+            ejectedPlayers: []
+        };
+        
+        // DOM элементы
+        const screens = {
+            main: document.getElementById('mainScreen'),
+            howToPlay: document.getElementById('howToPlayScreen'),
+            createGame: document.getElementById('createGameScreen'),
+            chooseCharacter: document.getElementById('chooseCharacterScreen'),
+            shareCards: document.getElementById('shareCardsScreen'),
+            game: document.getElementById('gameScreen')
+        };
+        
+        const modals = {
+            apocalypse: document.getElementById('apocalypseModal'),
+            bunker: document.getElementById('bunkerModal'),
+            finish: document.getElementById('finishModal')
+        };
+        
+        // Инициализация игры
+        function initGame() {
+            // Навигация
+            document.getElementById('createGameBtn').addEventListener('click', () => showScreen('createGame'));
+            document.getElementById('howToPlayBtn').addEventListener('click', () => showScreen('howToPlay'));
+            document.getElementById('bugReportBtn').addEventListener('click', () => {
+                window.open('https://t.me/Pluh5', '_blank');
+            });
+            
+            // Кнопки "Назад"
+            document.querySelectorAll('.back-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (screens.howToPlay.classList.contains('active')) {
+                        showScreen('main');
+                    } else if (screens.createGame.classList.contains('active')) {
+                        showScreen('main');
+                    } else if (screens.chooseCharacter.classList.contains('active')) {
+                        showScreen('createGame');
+                    } else if (screens.shareCards.classList.contains('active')) {
+                        showScreen('chooseCharacter');
+                    } else if (screens.game.classList.contains('active')) {
+                        showScreen('main');
+                    }
+                });
+            });
+            
+            // Как играть - вкладки
+            document.getElementById('introTab').addEventListener('click', () => {
+                document.getElementById('introTab').classList.add('active');
+                document.getElementById('gameplayTab').classList.remove('active');
+                document.getElementById('introContent').classList.remove('hidden');
+                document.getElementById('gameplayContent').classList.add('hidden');
+            });
+            
+            document.getElementById('gameplayTab').addEventListener('click', () => {
+                document.getElementById('gameplayTab').classList.add('active');
+                document.getElementById('introTab').classList.remove('active');
+                document.getElementById('gameplayContent').classList.remove('hidden');
+                document.getElementById('introContent').classList.add('hidden');
+            });
+            
+            // Листание страниц "Как играть"
+            initPagination('intro', 3);
+            initPagination('gameplay', 8);
+            
+            // Создание игры
+            const playerCountSlider = document.getElementById('playerCountSlider');
+            const playerCountValue = document.getElementById('playerCountValue');
+            
+            playerCountSlider.addEventListener('input', () => {
+                playerCountValue.textContent = playerCountSlider.value;
+                gameState.playerCount = parseInt(playerCountSlider.value);
+            });
+            
+            // Кнопки списков апокалипсисов и бункеров
+            document.getElementById('apocalypseListBtn').addEventListener('click', () => {
+                fillApocalypseList();
+                modals.apocalypse.classList.add('active');
+            });
+            
+            document.getElementById('bunkerListBtn').addEventListener('click', () => {
+                fillBunkerList();
+                modals.bunker.classList.add('active');
+            });
+            
+            document.getElementById('createGameNextBtn').addEventListener('click', () => {
+                // Генерация случайных апокалипсиса и бункера
+                gameState.currentApocalypse = apocalypses[Math.floor(Math.random() * apocalypses.length)];
+                gameState.currentBunker = bunkers[Math.floor(Math.random() * bunkers.length)];
+                
+                showScreen('chooseCharacter');
+                initNumberSelector();
+            });
+            
+            // Выбор персонажа
+            document.getElementById('chooseCharacterNextBtn').addEventListener('click', () => {
+                gameState.isObserver = document.getElementById('observerCheckbox').checked;
+                generatePlayers();
+                showScreen('shareCards');
+            });
+            
+            // Рассылка карточек
+            document.getElementById('startGameBtn').addEventListener('click', () => {
+                setupGameScreen();
+                showScreen('game');
+            });
+            
+            // Игровой экран
+            document.getElementById('showApocalypseBtn').addEventListener('click', () => {
+                document.getElementById('apocalypseBunkerScreen').classList.remove('hidden');
+            });
+            
+            document.getElementById('hideApocalypseBtn').addEventListener('click', () => {
+                document.getElementById('apocalypseBunkerScreen').classList.add('hidden');
+            });
+            
+            document.getElementById('finishBtn').addEventListener('click', () => {
+                showFinishModal();
+            });
+            
+            document.getElementById('closeThreatBtn').addEventListener('click', () => {
+                document.getElementById('threatScreen').classList.add('hidden');
+            });
+            
+            // Модальные окна
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    Object.values(modals).forEach(modal => modal.classList.remove('active'));
+                });
+            });
+            
+            // Финиш
+            document.getElementById('threatBtn').addEventListener('click', showRandomThreat);
+            document.getElementById('endGameBtn').addEventListener('click', () => {
+                modals.finish.classList.remove('active');
+                showScreen('main');
+            });
+        }
+        
+        // Инициализация пагинации
+        function initPagination(prefix, pageCount) {
+            let currentPage = 1;
+            const prevBtn = document.getElementById(`${prefix}PrevBtn`);
+            const nextBtn = document.getElementById(`${prefix}NextBtn`);
+            
+            function updateButtons() {
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === pageCount;
+            }
+            
+            function showPage(page) {
+                document.querySelectorAll(`[id^="${prefix}Page"]`).forEach(el => {
+                    el.classList.add('hidden');
+                });
+                document.getElementById(`${prefix}Page${page}`).classList.remove('hidden');
+                currentPage = page;
+                updateButtons();
+            }
+            
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) showPage(currentPage - 1);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < pageCount) showPage(currentPage + 1);
+            });
+            
+            showPage(1);
+        }
+        
+        // Заполнение списка апокалипсисов
+        function fillApocalypseList() {
+            const list = document.getElementById('apocalypseList');
+            list.innerHTML = '';
+            
+            apocalypses.forEach(apocalypse => {
+                const item = document.createElement('div');
+                item.className = 'modal-item';
+                item.innerHTML = `
+                    <div class="modal-item-title">${apocalypse.name}</div>
+                    <div>${apocalypse.description}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        // Заполнение списка бункеров
+        function fillBunkerList() {
+            const list = document.getElementById('bunkerList');
+            list.innerHTML = '';
+            
+            bunkers.forEach(bunker => {
+                const item = document.createElement('div');
+                item.className = 'modal-item';
+                item.innerHTML = `
+                    <div class="modal-item-title">${bunker.name}</div>
+                    <div>${bunker.description}</div>
+                    <div><strong>Местоположение:</strong> ${bunker.location}</div>
+                    <div><strong>Ресурсы:</strong> ${bunker.resources}</div>
+                    <div><strong>Слабости:</strong> ${bunker.weaknesses}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        // Инициализация выбора номера персонажа
+        function initNumberSelector() {
+            const selector = document.getElementById('numberSelector');
+            selector.innerHTML = '';
+            
+            for (let i = 1; i <= gameState.playerCount; i++) {
+                const option = document.createElement('div');
+                option.className = 'number-option';
+                option.textContent = i;
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.number-option').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                    document.getElementById('characterNumDisplay').textContent = i;
+                    gameState.selectedCharacter = i;
+                });
+                
+                if (i === 1) option.classList.add('selected');
+                selector.appendChild(option);
+            }
+        }
+        
+        // Показать экран
+        function showScreen(screenName) {
+            Object.values(screens).forEach(screen => {
+                screen.classList.remove('active');
+            });
+            screens[screenName].classList.add('active');
+        }
+        
+        // Генерация игроков
+        function generatePlayers() {
+            gameState.players = [];
+            
+            for (let i = 1; i <= gameState.playerCount; i++) {
+                const player = {
+                    number: i,
+                    profession: professions[Math.floor(Math.random() * professions.length)],
+                    gender: genders[Math.floor(Math.random() * genders.length)],
+                    age: Math.floor(Math.random() * 50) + 18,
+                    orientation: orientations[Math.floor(Math.random() * orientations.length)],
+                    health: healthConditions[Math.floor(Math.random() * healthConditions.length)],
+                    character: characters[Math.floor(Math.random() * characters.length)],
+                    hobby: hobbies[Math.floor(Math.random() * hobbies.length)],
+                    phobia: phobias[Math.floor(Math.random() * phobias.length)],
+                    extra: extraInfos[Math.floor(Math.random() * extraInfos.length)],
+                    knowledge: knowledgeCards[Math.floor(Math.random() * knowledgeCards.length)],
+                    luggage: luggageItems[Math.floor(Math.random() * luggageItems.length)],
+                    actionCard: actionCards[Math.floor(Math.random() * actionCards.length)],
+                    conditionCard: conditionCards[Math.floor(Math.random() * conditionCards.length)]
+                };
+                
+                gameState.players.push(player);
+            }
+            
+            // Обновляем список игроков на экране рассылки
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = '';
+            
+            gameState.players.forEach(player => {
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player-card';
+                playerElement.innerHTML = `
+                    <div>Игрок ${player.number}</div>
+                    <button class="btn btn-outline share-btn" data-player="${player.number}">Поделиться</button>
+                `;
+                playersList.appendChild(playerElement);
+            });
+            
+            // Обработчики для кнопок "Поделиться"
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const playerNum = parseInt(this.getAttribute('data-player'));
+                    const player = gameState.players.find(p => p.number === playerNum);
+                    
+                    if (player) {
+                        const playerInfo = `
+Игрок ${player.number}
+Профессия: ${player.profession}
+Возраст: ${player.age}
+Пол: ${player.gender}
+Ориентация: ${player.orientation}
+Характер: ${player.character}
+Здоровье: ${player.health}
+Хобби: ${player.hobby}
+Фобия: ${player.phobia}
+Доп. инфо: ${player.extra}
+Знание: ${player.knowledge}
+Багаж: ${player.luggage}
+Карта действия: ${player.actionCard}
+Карта условия: ${player.conditionCard}
+
+Катастрофа: ${gameState.currentApocalypse.name}
+${gameState.currentApocalypse.description}
+
+Бункер: ${gameState.currentBunker.name}
+${gameState.currentBunker.description}
+Местоположение: ${gameState.currentBunker.location}
+Ресурсы: ${gameState.currentBunker.resources}
+Слабости: ${gameState.currentBunker.weaknesses}
+                        `;
+                        
+                        // Копирование в буфер обмена
+                        navigator.clipboard.writeText(playerInfo).then(() => {
+                            alert(`Карточка игрока ${player.number} скопирована в буфер обмена! Теперь вы можете отправить её игроку через Telegram.`);
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Настройка игрового экрана
+        function setupGameScreen() {
+            // Установка катастрофы и бункера
+            document.getElementById('apocalypseDescription').textContent = 
+                `${gameState.currentApocalypse.name}\n${gameState.currentApocalypse.description}`;
+                
+            document.getElementById('bunkerName').textContent = gameState.currentBunker.name;
+            document.getElementById('bunkerSize').textContent = "500 m²"; // Примерное значение
+            document.getElementById('bunkerSlots').textContent = Math.floor(gameState.playerCount / 2);
+            document.getElementById('bunkerTime').textContent = "1 мес."; // Примерное значение
+            document.getElementById('bunkerDescription').textContent = gameState.currentBunker.description;
+            document.getElementById('bunkerLocation').textContent = gameState.currentBunker.location;
+            document.getElementById('bunkerResources').textContent = gameState.currentBunker.resources;
+            document.getElementById('bunkerWeaknesses').textContent = gameState.currentBunker.weaknesses;
+            
+            // Установка текущего игрока
+            updatePlayerCard(gameState.selectedCharacter);
+            
+            // Создание кнопок для переключения игроков
+            const playerSlider = document.getElementById('playerSlider');
+            playerSlider.innerHTML = '';
+            
+            for (let i = 1; i <= gameState.playerCount; i++) {
+                const btn = document.createElement('div');
+                btn.className = 'player-dot';
+                btn.textContent = i;
+                if (i === gameState.selectedCharacter) btn.classList.add('active');
+                
+                btn.addEventListener('click', () => {
+                    if (i !== gameState.selectedCharacter && !gameState.isObserver) {
+                        if (confirm("Вы уверены что хотите посмотреть характеристики другого игрока?")) {
+                            updatePlayerCard(i);
+                        }
+                    } else {
+                        updatePlayerCard(i);
+                    }
+                });
+                
+                playerSlider.appendChild(btn);
+            }
+        }
+        
+        // Обновление карточки игрока
+        function updatePlayerCard(playerNumber) {
+            const player = gameState.players.find(p => p.number === playerNumber);
+            if (!player) return;
+            
+            document.getElementById('playerNum').textContent = player.number;
+            document.getElementById('playerProfession').textContent = player.profession;
+            document.getElementById('playerAge').textContent = `${player.age} год`;
+            document.getElementById('playerGender').textContent = player.gender;
+            document.getElementById('playerOrientation').textContent = player.orientation;
+            document.getElementById('playerHealth').textContent = player.health;
+            document.getElementById('playerCharacter').textContent = player.character;
+            document.getElementById('playerHobby').textContent = player.hobby;
+            document.getElementById('playerPhobia').textContent = player.phobia;
+            document.getElementById('playerExtra').textContent = player.extra;
+            document.getElementById('playerKnowledge').textContent = player.knowledge;
+            document.getElementById('playerLuggage').textContent = player.luggage;
+            document.getElementById('playerActionCard').textContent = player.actionCard;
+            document.getElementById('playerConditionCard').textContent = player.conditionCard;
+            
+            // Обновление активной кнопки
+            document.querySelectorAll('.player-dot').forEach(btn => {
+                if (parseInt(btn.textContent) === playerNumber) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // Показать случайную угрозу
+        function showRandomThreat() {
+            const threat = threats[Math.floor(Math.random() * threats.length)];
+            document.getElementById('threatDescription').textContent = threat;
+            document.getElementById('threatScreen').classList.remove('hidden');
+        }
+        
+        // Показать модальное окно финиша
+        function showFinishModal() {
+            modals.finish.classList.add('active');
+            
+            const list = document.getElementById('finishPlayerList');
+            list.innerHTML = '';
+            
+            gameState.players.forEach(player => {
+                const isEjected = gameState.ejectedPlayers.includes(player.number);
+                const item = document.createElement('div');
+                item.className = 'finish-player-item';
+                item.innerHTML = `
+                    <div>Игрок ${player.number} ${isEjected ? '(выбыл)' : ''}</div>
+                    <button class="btn btn-small ${isEjected ? 'btn-outline' : 'btn-danger'}" 
+                            data-player="${player.number}">
+                        ${isEjected ? 'Вернуть' : 'Выкинуть'}
+                    </button>
+                `;
+                list.appendChild(item);
+                
+                // Обработчик кнопки выкинуть/вернуть
+                const button = item.querySelector('button');
+                button.addEventListener('click', function() {
+                    const playerNum = parseInt(this.getAttribute('data-player'));
+                    
+                    if (gameState.ejectedPlayers.includes(playerNum)) {
+                        // Вернуть игрока
+                        gameState.ejectedPlayers = gameState.ejectedPlayers.filter(num => num !== playerNum);
+                        this.textContent = 'Выкинуть';
+                        this.classList.remove('btn-outline');
+                        this.classList.add('btn-danger');
+                    } else {
+                        // Выкинуть игрока
+                        gameState.ejectedPlayers.push(playerNum);
+                        this.textContent = 'Вернуть';
+                        this.classList.remove('btn-danger');
+                        this.classList.add('btn-outline');
+                    }
+                    
+                    // Обновляем статус игрока
+                    const playerText = item.querySelector('div');
+                    playerText.innerHTML = `Игрок ${playerNum} ${gameState.ejectedPlayers.includes(playerNum) ? '(выбыл)' : ''}`;
+                });
+            });
+        }
+        
+        // Запуск игры при загрузке
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
